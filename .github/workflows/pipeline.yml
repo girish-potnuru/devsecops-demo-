@@ -1,0 +1,14 @@
+name: DevSecOps-Pipeline
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Run Python Script
+        run: python3 hello.py
+      - name: Security Placeholder
+        run: echo "🔐 Security Scan will be added here later"
