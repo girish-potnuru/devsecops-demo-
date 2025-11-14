@@ -8,7 +8,22 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+      - name: Set up JDK (Sonar requirement)
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
       - name: Run Python Script
         run: python3 hello.py
+      - name: Run Sonar Scanner
+        uses: sonarsource/sonarcloud-github-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=girish-potnuru_devsecops-demo-
+            -Dsonar.organization=girish-potnuru
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
       - name: Security Placeholder
         run: echo "🔐 Security Scan will be added here later"
