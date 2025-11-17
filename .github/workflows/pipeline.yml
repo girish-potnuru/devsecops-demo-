@@ -41,6 +41,21 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.python.version=3
 
+      - name: SonarCloud Debug Scan (save logs)
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          mkdir -p sonar-logs
+          sonar-scanner -X > sonar-logs/sonar-scanner-debug.log 2>&1 || true
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Upload Sonar debug logs
+        if: ${{ github.event_name == 'push' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: sonar-debug-logs
+          path: sonar-logs/sonar-scanner-debug.log
+
       # ---------------------
       # SCA - Dependency Scanning
       # ---------------------
