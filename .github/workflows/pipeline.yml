@@ -1,31 +1,49 @@
 name: DevSecOps-Pipeline
+
 on:
   push:
     branches: [ main ]
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
+
       - name: Checkout Code
         uses: actions/checkout@v3
-      - name: Set up JDK (Sonar requirement)
+
+      - name: Set up JDK (Sonar Requirement)
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
       - name: Run Python Script
         run: python3 hello.py
-      - name: Run Sonar Scanner
+
+      # ---------------------
+      # SAST - SonarCloud
+      # ---------------------
+      - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.projectKey=girish-potnuru_devsecops-demo-
+            -Dsonar.projectKey=girish-potnuru_devsecops-demo
             -Dsonar.organization=girish-potnuru
             -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+            -Dsonar.python.version=3
 
+      # ---------------------
+      # SCA - Dependency Scanning
+      # ---------------------
       - name: Install Dependencies
         run: |
           python3 -m pip install --upgrade pip
@@ -33,7 +51,6 @@ jobs:
 
       - name: Run pip-audit (isolated venv)
         run: |
-          python3 -m pip install --upgrade pip
           python3 -m venv .venv-pip-audit
           source .venv-pip-audit/bin/activate
           pip install --upgrade pip
@@ -45,5 +62,6 @@ jobs:
         run: |
           pip install safety
           safety check --full-report
+
       - name: Security Placeholder
         run: echo "🔐 Security Scan will be added here later"
